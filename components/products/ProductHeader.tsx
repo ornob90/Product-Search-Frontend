@@ -1,6 +1,8 @@
 import React from "react";
 import Search from "../shared/Search";
 import { Button } from "@heroui/button";
+import AddProduct from "./AddProduct";
+
 
 const ProductHeader = () => {
   return (
@@ -14,13 +16,7 @@ const ProductHeader = () => {
         >
           Create Category
         </Button>
-        <Button
-          color="default"
-          variant="solid"
-          className="text-white bg-dark "
-        >
-          Add New Product
-        </Button>
+        <AddProduct />
       </div>
     </section>
   );

@@ -19,18 +19,16 @@ import {
 } from "@heroui/dropdown";
 import { Button } from "@heroui/button";
 import { FiMoreVertical } from "react-icons/fi";
-
-// Define your product type
-type Product = {
-  title: string;
-  slug: string;
-  brand: string;
-  category: string;
-  price: number;
-  rating: number;
-  stock: number;
-  links: string[];
-};
+import { Product } from "@/types/products.types";
+import EditProduct from "./EditProduct";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
+} from "@heroui/modal";
+import ProductForm from "./ProductForm";
 
 // Define only sortable keys
 type SortableColumn = "title" | "category" | "price" | "stock";
@@ -76,39 +74,6 @@ export default function ProductsTable() {
     return sortedProducts.slice(start, end);
   }, [page, sortedProducts]);
 
-  const renderCell = (item: Product, columnKey: string) => {
-    switch (columnKey) {
-      case "title":
-        return (
-          <div className="flex items-center gap-x-2">
-            <Avatar src={item.links[0]} radius="full" size="sm" />
-            <span>{item.title}</span>
-          </div>
-        );
-      case "actions":
-        return (
-          <div className="flex items-center justify-center">
-            <Dropdown>
-              <DropdownTrigger className=" place-self-center w-fit">
-                <Button isIconOnly variant="light" className=" w-fit" radius="full" size="sm">
-                  <FiMoreVertical />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem key="view">View</DropdownItem>
-                <DropdownItem key="edit">Edit</DropdownItem>
-                <DropdownItem key="delete" className="text-danger">
-                  Delete
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        );
-      default:
-        return item[columnKey as keyof Product];
-    }
-  };
-
   return (
     <div className="flex flex-col gap-4">
       <Table
@@ -147,7 +112,10 @@ export default function ProductsTable() {
           {(item) => (
             <TableRow key={item.slug}>
               {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey as any)}</TableCell>
+                <TableCell>
+                  {/* {renderCell(item, columnKey as any)} */}
+                  <Action item={item} columnKey={columnKey as string} />
+                </TableCell>
               )}
             </TableRow>
           )}
@@ -155,4 +123,62 @@ export default function ProductsTable() {
       </Table>
     </div>
   );
+}
+
+function Action({ item, columnKey }: { item: Product; columnKey: string }) {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  switch (columnKey) {
+    case "title":
+      return (
+        <div className="flex items-center gap-x-2">
+          <Avatar src={item.links[0]} radius="full" size="sm" />
+          <span>{item.title}</span>
+        </div>
+      );
+    case "actions":
+      return (
+        <div className="flex items-center justify-center">
+          <Modal
+            key={`edit-product-${item?.title}`}
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            size="xl"
+          >
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader>Update Product</ModalHeader>
+                  <ModalBody>
+                    <ProductForm type="update" product={item} />
+                  </ModalBody>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+          <Dropdown>
+            <DropdownTrigger className=" place-self-center w-fit">
+              <Button
+                isIconOnly
+                variant="light"
+                className=" w-fit"
+                radius="full"
+                size="sm"
+              >
+                <FiMoreVertical />
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu>
+              <DropdownItem key="view">View</DropdownItem>
+              <DropdownItem key="edit" onPress={onOpen}>Edit</DropdownItem>
+              <DropdownItem key="delete" className="text-danger">
+                Delete
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </div>
+      );
+    default:
+      return item[columnKey as keyof Product];
+  }
 }
