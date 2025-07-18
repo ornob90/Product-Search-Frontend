@@ -6,9 +6,9 @@ import React from "react";
 const Home = async ({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: any;
 }) => {
-  const view = (await searchParams)?.view === "grid" ? "grid" : "table";
+  const view = searchParams?.view === "grid" ? "grid" : "table";
   return (
     <section className="space-y-4 ">
       <ProductHeader />
